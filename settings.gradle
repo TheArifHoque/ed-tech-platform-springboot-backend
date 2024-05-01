@@ -7,4 +7,5 @@
 
 rootProject.name = 'e-learning-platform-springboot-backend'
 include 'common-module'
+include 'discovery-server'
 include 'user-service'
