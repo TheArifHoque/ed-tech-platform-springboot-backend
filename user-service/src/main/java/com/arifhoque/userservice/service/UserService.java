@@ -48,6 +48,15 @@ public class UserService {
         userRepo.save(existingUser);
     }
 
+    public void updateProfileImage(UUID userId, String imageUrl) throws Exception {
+        User existingUser = userRepo.findById(userId).orElse(null);
+        if (existingUser == null) {
+            throw new Exception("User with id - " + userId + " does not exists!");
+        }
+        existingUser.setImageUrl(imageUrl);
+        userRepo.save(existingUser);
+    }
+
     public void validateEmail(String email) throws Exception {
         boolean isEmailValid = isEmailValid(email);
         if (!isEmailValid) {
