@@ -31,4 +31,4 @@ keycloak:
   server-url: http://localhost:8080
   realm-name: e-learning-platform
   admin-cli-client-id: admin-cli
-  admin-cli-client-secret: kZFl70mCKkM40ZumjFdJMlXFJEGSUJ4t
+  admin-cli-client-secret: UUUJ9UsvkFARF1AnPgAVVb6aMuPzasnV
