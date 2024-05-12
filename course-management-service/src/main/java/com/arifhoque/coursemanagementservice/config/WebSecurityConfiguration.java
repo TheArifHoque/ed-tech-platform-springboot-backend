@@ -10,16 +10,29 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Configuration class for Spring Security.
+ *
+ * @author Ariful Hoque
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurityConfiguration {
 
+    /**
+     * Defines a custom security filter chain configuration for Spring Security.
+     * This configuration specifies how to handle security aspects of the application.
+     *
+     * @param httpSecurity the HttpSecurity object to configure the security filters.
+     * @return instance of SecurityFilterChain that defines the order and behavior of security filters.
+     * @throws Exception if an error occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .headers( headersConfigurer -> headersConfigurer
+                .headers(headersConfigurer -> headersConfigurer
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                 )
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
