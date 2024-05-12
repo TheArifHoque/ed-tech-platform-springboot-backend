@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/common-module" />
             <option value="$PROJECT_DIR$/content-delivery-service" />
+            <option value="$PROJECT_DIR$/course-management-service" />
             <option value="$PROJECT_DIR$/discovery-server" />
             <option value="$PROJECT_DIR$/user-service" />
           </set>
