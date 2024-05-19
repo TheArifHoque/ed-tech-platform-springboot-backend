@@ -41,6 +41,14 @@ public class HttpCallLogic {
         return restTemplate.exchange(url, methodType, requestEntity, CustomHttpResponse.class);
     }
 
+    public ResponseEntity<byte[]> fetchMediaContent(CustomHttpRequest customHttpRequest) {
+        URI url = prepareRequestUri(customHttpRequest);
+        HttpMethod methodType = customHttpRequest.getMethodType();
+        HttpHeaders requestHeaders = prepareRequestHeaders(customHttpRequest);
+        HttpEntity<Map<String, ?>> requestEntity = new HttpEntity<>(requestHeaders);
+        return restTemplate.exchange(url, methodType, requestEntity, byte[].class);
+    }
+
     private URI prepareRequestUri(CustomHttpRequest customHttpRequest) {
         String url = customHttpRequest.getUrl();
         Map<String, String> urlParameterMap = customHttpRequest.getUrlParameterMap();
