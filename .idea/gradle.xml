@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/api-gateway" />
             <option value="$PROJECT_DIR$/common-module" />
             <option value="$PROJECT_DIR$/content-delivery-service" />
             <option value="$PROJECT_DIR$/course-management-service" />
