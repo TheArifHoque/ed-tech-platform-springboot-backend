@@ -1,0 +1,62 @@
+package com.arifhoque.apigateway.config;
+
+import com.arifhoque.commonmodule.util.KeycloakRoleConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+/**
+ * Configuration class for Spring Security.
+ *
+ * @author Ariful Hoque
+ */
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfiguration {
+
+    /**
+     * Defines a custom security filter chain configuration for Spring Security.
+     * This configuration specifies how to handle security aspects of the application.
+     *
+     * @param httpSecurity the HttpSecurity object to configure the security filters.
+     * @return instance of SecurityFilterChain that defines the order and behavior of security filters.
+     * @throws Exception if an error occurs during configuration.
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headersConfigurer -> headersConfigurer
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                )
+                .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                        .requestMatchers("/actuators/**").hasRole("ADMIN")
+                        .anyRequest().permitAll()
+                )
+                .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .jwtAuthenticationConverter(new KeycloakRoleConverter())
+                        )
+                )
+                .build();
+    }
+
+    private CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
+    }
+}
