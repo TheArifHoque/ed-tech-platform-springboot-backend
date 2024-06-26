@@ -34,7 +34,67 @@ public class UserAPIService {
         try {
             ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
             return (Map<String, Object>) responseEntity.getBody().getResponseBody().get("user");
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            throw new Exception("Error occurred while calling USER-SERVICE!");
+        }
+    }
+
+    public String registerRegularUser(Map<String, Object> userData) throws Exception {
+        String url = "user-service/user";
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, null,
+                null, userData);
+        try {
+            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
+            return (String) responseEntity.getBody().getResponseBody().get("message");
+        } catch (Exception ex) {
+            throw new Exception("Error occurred while calling USER-SERVICE!");
+        }
+    }
+
+    public String updateUserData(Map<String, Object> user, String accessToken) throws Exception {
+        String url = "user-service/user/profile";
+        Map<String, String> headerParameterMap = new HashMap<>();
+        headerParameterMap.put(AUTHORIZATION_HEADER, accessToken);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, headerParameterMap,
+                null, user);
+        try {
+            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
+            return (String) responseEntity.getBody().getResponseBody().get("message");
+        } catch (Exception ex) {
+            throw new Exception("Error occurred while calling USER-SERVICE!");
+        }
+    }
+
+    public String updateUserPhoto(UUID userId, String imageUrl, String accessToken) throws Exception {
+        String url = "user-service/user/image";
+        Map<String, String> headerParameterMap = new HashMap<>();
+        headerParameterMap.put(AUTHORIZATION_HEADER, accessToken);
+        Map<String, Object> bodyMap = new HashMap<>();
+        bodyMap.put("userId", userId);
+        bodyMap.put("imageUrl", imageUrl);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, headerParameterMap,
+                null, bodyMap);
+        try {
+            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
+            return (String) responseEntity.getBody().getResponseBody().get("message");
+        } catch (Exception ex) {
+            throw new Exception("Error occurred while calling USER-SERVICE!");
+        }
+    }
+
+    public String updatePassword(String userId, String password, String accessToken) throws Exception {
+        String url = "user-service/user/password";
+        Map<String, String> headerParameterMap = new HashMap<>();
+        headerParameterMap.put(AUTHORIZATION_HEADER, accessToken);
+        Map<String, Object> bodyMap = new HashMap<>();
+        bodyMap.put("userId", userId);
+        bodyMap.put("password", password);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, headerParameterMap,
+                null, bodyMap);
+        try {
+            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
+            return (String) responseEntity.getBody().getResponseBody().get("message");
+        } catch (Exception ex) {
             throw new Exception("Error occurred while calling USER-SERVICE!");
         }
     }
