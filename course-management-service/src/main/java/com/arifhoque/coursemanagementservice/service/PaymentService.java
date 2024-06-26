@@ -28,16 +28,16 @@ public class PaymentService {
         return paymentInfoRepository.findAllBy(pageRequest);
     }
 
-    public void savePaymentInfo(PaymentInfo paymentInfo) throws Exception{
+    public void savePaymentInfo(PaymentInfo paymentInfo) throws Exception {
         PaymentInfo existingPaymentInfo = paymentInfoRepository.findByTrxId(paymentInfo.getTrxId());
         if (existingPaymentInfo != null) {
-            throw new Exception("Payment with transaction id - " + existingPaymentInfo.getTrxId() + " already exists!");
+            throw new Exception("Payment with transaction id - " + paymentInfo.getTrxId() + " already exists!");
         }
         paymentInfo.setStatus("IN_REVIEW");
         paymentInfoRepository.save(paymentInfo);
     }
 
-    public void updatePaymentStatus(String trxId, String status) throws Exception{
+    public void updatePaymentStatus(String trxId, String status) throws Exception {
         PaymentInfo existingPaymentInfo = paymentInfoRepository.findByTrxId(trxId);
         if (existingPaymentInfo == null) {
             throw new Exception("Payment with transaction id - " + trxId + " does not exist!");
