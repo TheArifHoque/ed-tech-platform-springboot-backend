@@ -3,15 +3,25 @@ package com.arifhoque.contentdeliveryservice.controller;
 import com.arifhoque.commonmodule.model.CustomHttpResponse;
 import com.arifhoque.commonmodule.util.ResponseBuilder;
 import com.arifhoque.contentdeliveryservice.service.ContentService;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -45,15 +55,40 @@ public class ContentController {
      * Else returns 400-Bad Request.
      */
     @PostMapping(consumes = "multipart/form-data")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<CustomHttpResponse> saveContent(@RequestParam MultipartFile[] contents) {
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<CustomHttpResponse> saveContents(@RequestParam MultipartFile[] contents) {
         List<String> urlList;
         try {
             urlList = contentService.saveContents(contents);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to save contents in the file system! Reason: " + e.getMessage());
+                    "Failed to save contents in the file system! Reason: " + ex.getMessage());
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("urlList", urlList));
+    }
+
+    @GetMapping("/stream/file-system-storage/{videoUrl}")
+    public ResponseEntity<InputStreamResource> streamVideo(@RequestHeader HttpHeaders headers,
+                                                           @PathVariable String videoUrl) throws IOException {
+        File videoFile = new File("file-system-storage/" + videoUrl);
+        InputStream videoStream = new FileInputStream(videoFile);
+        long fileSize = videoFile.length();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.CONTENT_TYPE, "video/mp4");
+
+        if (headers.getRange().isEmpty()) {
+            responseHeaders.setContentLength(fileSize);
+            return new ResponseEntity<>(new InputStreamResource(videoStream), responseHeaders, HttpStatus.OK);
+        } else {
+            HttpRange range = headers.getRange().get(0);
+            long start = range.getRangeStart(fileSize);
+            long end = range.getRangeEnd(fileSize);
+            responseHeaders.add(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileSize);
+            responseHeaders.setContentLength(end - start + 1);
+            videoStream.skip(start);
+            return new ResponseEntity<>(new InputStreamResource(videoStream), responseHeaders,
+                    HttpStatus.PARTIAL_CONTENT);
+        }
     }
 }
