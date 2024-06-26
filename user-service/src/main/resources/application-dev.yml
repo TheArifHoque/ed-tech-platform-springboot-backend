@@ -15,7 +15,7 @@ spring:
   datasource:
     url: jdbc:h2:mem:user-service-db
     driver-class-name: org.h2.Driver
-    username: root
+    username: postgres
     password: root
   security:
     oauth2:
