@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/home-page-api")
@@ -27,7 +26,7 @@ public class HomePageController {
     public ResponseEntity<CustomHttpResponse> getHomeScreenData() {
         List<Map<String, Object>> courseList;
         try {
-            courseList = courseAPIService.getAllCourses(0,6);
+            courseList = courseAPIService.getAllCourses(0, 6);
         } catch (Exception e) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
                     "Failed to fetch course list! Reason: " + e.getMessage());
