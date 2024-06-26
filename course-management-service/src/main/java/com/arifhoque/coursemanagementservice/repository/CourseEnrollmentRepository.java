@@ -13,4 +13,6 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
     List<CourseEnrollmentInfo> findByCourseId(UUID courseId);
 
     List<CourseEnrollmentInfo> findByUserId(UUID userId);
+
+    CourseEnrollmentInfo findByCourseIdAndUserId(UUID courseId, UUID userId);
 }
