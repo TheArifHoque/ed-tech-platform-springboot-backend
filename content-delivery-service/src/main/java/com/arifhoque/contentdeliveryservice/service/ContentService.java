@@ -68,15 +68,18 @@ public class ContentService {
     }
 
     /**
-     * Stores the content file to the file system using its unique hash as the filename.
+     * Checks if the provided content list is valid and not empty.
      *
-     * @param content  the multipart file representing the content file.
-     * @param fileName the unique filename for the content.
-     * @throws IOException if an error occurs during file storage.
+     * @param contents an array of multipart file objects.
+     * @return true if the content list is valid and not empty. Otherwise, returns false.
      */
-    private void storeContentToFileSystem(MultipartFile content, String fileName) throws IOException {
-        Path targetLocation = storageLocation.resolve(fileName);
-        Files.copy(content.getInputStream(), targetLocation);
+    private boolean isContentListValid(MultipartFile[] contents) {
+        for (MultipartFile content : contents) {
+            if (content == null || content.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -97,16 +100,14 @@ public class ContentService {
     }
 
     /**
-     * Checks if the provided content list is valid and not empty.
+     * Stores the content file to the file system using its unique hash as the filename.
      *
-     * @param contents an array of multipart file objects.
-     * @return true if the content list is valid and not empty. Otherwise, returns false.
+     * @param content  the multipart file representing the content file.
+     * @param fileName the unique filename for the content.
+     * @throws IOException if an error occurs during file storage.
      */
-    private boolean isContentListValid(MultipartFile[] contents) {
-        for (MultipartFile content : contents)
-            if (content == null || content.isEmpty())
-                return false;
-
-        return true;
+    private void storeContentToFileSystem(MultipartFile content, String fileName) throws IOException {
+        Path targetLocation = storageLocation.resolve(fileName);
+        Files.copy(content.getInputStream(), targetLocation);
     }
 }
