@@ -55,20 +55,19 @@ public class KeycloakService {
         userRepresentation.setFirstName(user.getFirstName());
         userRepresentation.setLastName(user.getLastName());
         userRepresentation.setEnabled(true);
+
         Response response = keycloak.realm(realmName).users().create(userRepresentation);
 
-        if (response.getStatus() == 201) {
-            try {
-                String keyCloakUserId = getKeyCloakUserId(user.getEmail());
-                UserResource userResource = getUserResourceById(keyCloakUserId);
-                updateUserRole(userResource, user.getRole());
-                updateUserCredentials(userResource, user.getPassword());
-                return UUID.fromString(keyCloakUserId);
-            } catch (Exception e) {
-                throw new Exception("Unable to register user in auth server! Reason: " + e.getMessage());
-            }
-        } else
-            throw new Exception("Unable to register user in auth server! Reason: " + response.getStatusInfo());
+        if (response.getStatus() != 201) {
+            throw new Exception(response.getStatusInfo().toString());
+        }
+
+        String keyCloakUserId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+        UserResource userResource = getUserResourceById(keyCloakUserId);
+        updateUserCredentials(userResource, user.getPassword());
+        updateUserRole(userResource, user.getRole());
+
+        return UUID.fromString(keyCloakUserId);
     }
 
     /**
@@ -81,7 +80,7 @@ public class KeycloakService {
         UserResource userResource = getUserResourceById(user.getUserId().toString());
         UserRepresentation userRepresentation = userResource.toRepresentation();
         if (userRepresentation == null) {
-            throw new Exception("No user found in auth server with this email!");
+            throw new Exception("No such user found!");
         }
         userRepresentation.setFirstName(user.getFirstName());
         userRepresentation.setLastName(user.getLastName());
@@ -89,17 +88,13 @@ public class KeycloakService {
     }
 
     /**
-     * Updates the credentials of a user in the Keycloak realm.
+     * Retrieves a UserResource object for a user with the specified id.
      *
-     * @param userResource the UserResource object representing the user.
-     * @param password     new password for the user.
+     * @param keyCloakUserId the user's Keycloak id.
+     * @return a UserResource object of the user.
      */
-    public void updateUserCredentials(UserResource userResource, String password) {
-        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
-        credentialRepresentation.setTemporary(false);
-        credentialRepresentation.setValue(password);
-        userResource.resetPassword(credentialRepresentation);
+    public UserResource getUserResourceById(String keyCloakUserId) {
+        return keycloak.realm(realmName).users().get(keyCloakUserId);
     }
 
     /**
@@ -115,28 +110,17 @@ public class KeycloakService {
     }
 
     /**
-     * Retrieves the Keycloak user id associated with the provided email.
+     * Updates the credentials of a user in the Keycloak realm.
      *
-     * @param email the email address of the user.
-     * @return Keycloak user id as a string.
-     * @throws Exception if no user is found with the given email.
+     * @param userResource the UserResource object representing the user.
+     * @param password     new password for the user.
      */
-    private String getKeyCloakUserId(String email) throws Exception {
-        List<UserRepresentation> userRepresentationList = keycloak.realm(realmName).users().searchByEmail(email, true);
-        if (CollectionUtils.isEmpty(userRepresentationList)) {
-            throw new Exception("No user found in auth with this email!");
-        }
-        return userRepresentationList.get(0).getId();
-    }
-
-    /**
-     * Retrieves a UserResource object for a user with the specified id.
-     *
-     * @param keyCloakUserId the user's Keycloak id.
-     * @return a UserResource object of the user.
-     */
-    public UserResource getUserResourceById(String keyCloakUserId) {
-        return keycloak.realm(realmName).users().get(keyCloakUserId);
+    public void updateUserCredentials(UserResource userResource, String password) {
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        credentialRepresentation.setTemporary(false);
+        credentialRepresentation.setValue(password);
+        userResource.resetPassword(credentialRepresentation);
     }
 
     /**
