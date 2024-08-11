@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.arifhoque.commonmodule.constant.CommonConstant.MESSAGE;
 import static com.arifhoque.userservice.constant.UserServiceConstant.ROLE_ADMIN;
 import static com.arifhoque.userservice.constant.UserServiceConstant.ROLE_USER;
 
@@ -49,6 +50,7 @@ public class UserController {
 
     /**
      * API to add / register user with role 'USER'.
+     * <p>
      * To use this API, client application doesn't need to pass any access token.
      *
      * @param user request payload containing user data.
@@ -64,15 +66,16 @@ public class UserController {
             UUID userId = keycloakService.registerNewUser(user);
             user.setUserId(userId);
             userService.addUser(user);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to add user! Reason: " + e.getMessage());
+                    "Failed to add user! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of("message", "Successfully added user"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE, "Successfully added user"));
     }
 
     /**
      * API to add / register user with role 'ADMIN'.
+     * <p>
      * To use this API, client application needs to pass access token with role 'ADMIN'.
      *
      * @param user request payload containing user's data.
@@ -89,41 +92,42 @@ public class UserController {
             UUID userId = keycloakService.registerNewUser(user);
             user.setUserId(userId);
             userService.addUser(user);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to add user! Reason: " + e.getMessage());
+                    "Failed to add admin user! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED,
-                Map.of("message", "Successfully added admin user"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE, "Successfully added admin"));
     }
 
     /**
      * API to fetch any particular user's information.
+     * <p>
      * To use this API, client application needs to pass access token with either role 'ADMIN' or 'USER'.
      *
      * @param userId userId of the user.
      * @return user information found in the 'user-service-db'. Else returns 404-Not Found.
      */
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<CustomHttpResponse> getUserById(@PathVariable UUID userId) {
         User user = userService.getUser(userId);
         if (user == null) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.NOT_FOUND, "404",
-                    "User not found with this user id!");
+                    "No user found for this user id!");
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("user", user));
     }
 
     /**
      * API to list all the user with role 'USER'.
+     * <p>
      * To use this API, client application needs to pass access token with either role 'ADMIN' or 'USER'.
      *
      * @return list of user information found in the KeyCloak auth server with role 'USER' and in 'user-service-db'.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<CustomHttpResponse> getAllRegularUsers() {
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<CustomHttpResponse> getAllRegularUser() {
         List<UUID> userIds = keycloakService.getUserIdsByRole(ROLE_USER);
         List<User> userList = userService.getListOfUser(userIds);
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("userList", userList));
@@ -131,13 +135,14 @@ public class UserController {
 
     /**
      * API to list all the user with role 'ADMIN'.
-     * To use this API, client application needs to pass access token with either role 'ADMIN' or 'USER'.
+     * <p>
+     * To use this API, client application needs to pass access token with role 'ADMIN'.
      *
      * @return list of user information found in the KeyCloak auth server with role 'ADMIN' and in 'user-service-db'.
      */
     @GetMapping("/admin")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<CustomHttpResponse> getAllAdminUsers() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CustomHttpResponse> getAllAdminUser() {
         List<UUID> userIds = keycloakService.getUserIdsByRole(ROLE_ADMIN);
         List<User> userList = userService.getListOfUser(userIds);
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("userList", userList));
@@ -145,26 +150,28 @@ public class UserController {
 
     /**
      * API to fetch a list of user info with role 'ADMIN' & 'USER'.
-     * To use this API, client application needs to pass access token with either role 'ADMIN' or 'USER'.
+     * <p>
+     * To use this API, client application needs to pass access token with role 'ADMIN'.
      *
      * @param userIdsMap map containing a list of user ids whose information is to be queried.
      * @return list of user information found in the 'user-service-db'.
      */
     @PostMapping("/list")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomHttpResponse> getListOfUser(@RequestBody Map<String, List<UUID>> userIdsMap) {
         List<User> userList;
         try {
             userList = userService.getListOfUser(userIdsMap.get("userIds"));
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to fetch user information! Reason: " + e.getMessage());
+                    "Failed to fetch user information! Reason: " + ex.getMessage());
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("userList", userList));
     }
 
     /**
      * API to update user profile information.
+     * <p>
      * To use this API, client application needs to pass access token of that particular user.
      * Or it needs to pass access token with role 'ADMIN'.
      *
@@ -177,16 +184,17 @@ public class UserController {
         try {
             keycloakService.updateUser(user);
             userService.updateUser(user);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
-                    "Failed to update user information! Reason: " + e.getMessage());
+                    "Failed to update user information! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("message",
-                "Successfully updated user"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of(MESSAGE,
+                "Successfully updated user information"));
     }
 
     /**
-     * API to update user profile picture.
+     * API to update user profile picture url.
+     * <p>
      * To use this API, client application needs to pass access token of that particular user.
      * Or it needs to pass access token with role 'ADMIN'.
      *
@@ -195,19 +203,20 @@ public class UserController {
      */
     @PostMapping("/image")
     @PreAuthorize("hasRole('ADMIN') or #imageUrlMap.get('userId') == authentication.principal.subject")
-    public ResponseEntity<CustomHttpResponse> updatePhoto(@RequestBody Map<String, String> imageUrlMap) {
+    public ResponseEntity<CustomHttpResponse> updateImageUrl(@RequestBody Map<String, String> imageUrlMap) {
         try {
-            userService.updateProfileImage(UUID.fromString(imageUrlMap.get("userId")), imageUrlMap.get("imageUrl"));
-        } catch (Exception e) {
+            userService.updateProfileImageUrl(UUID.fromString(imageUrlMap.get("userId")), imageUrlMap.get("imageUrl"));
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
-                    "Failed to update user profile image! Reason: " + e.getMessage());
+                    "Failed to update profile image! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("message",
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of(MESSAGE,
                 "Successfully updated profile image"));
     }
 
     /**
      * API to update account password.
+     * <p>
      * To use this API, client application needs to pass access token of that particular user.
      * Or it needs to pass access token with role 'ADMIN'.
      *
@@ -223,11 +232,11 @@ public class UserController {
             userService.validatePassword(password);
             UserResource userResource = keycloakService.getUserResourceById(userId);
             keycloakService.updateUserCredentials(userResource, password);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
-                    "Failed to update user password! Reason: " + e.getMessage());
+                    "Failed to update password! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("message",
-                "Successfully updated user password"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of(MESSAGE,
+                "Successfully updated password"));
     }
 }
