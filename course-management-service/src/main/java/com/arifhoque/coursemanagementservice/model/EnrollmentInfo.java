@@ -7,21 +7,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
-@Table(name = "course_enrollement_info_table")
-public class CourseEnrollmentInfo {
+@Table(name = "enrollment_info_table")
+public class EnrollmentInfo {
 
     @Id
     @GeneratedValue
-    @Column(name = "enrollement_id")
-    private UUID enrollementId;
+    @Column(name = "enrollment_id")
+    private UUID enrollmentId;
 
     @Column(name = "course_id")
     private UUID courseId;

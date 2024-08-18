@@ -6,14 +6,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.Date;
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "course_table")
 public class Course {
@@ -40,4 +44,8 @@ public class Course {
 
     @Column(name = "discount")
     private Integer discount;
+
+    @CreationTimestamp
+    @Column(name = "published_at", nullable = false, updatable = false)
+    private Date publishedAt;
 }
