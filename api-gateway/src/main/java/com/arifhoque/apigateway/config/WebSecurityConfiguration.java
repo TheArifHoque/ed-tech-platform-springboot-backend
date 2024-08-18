@@ -41,7 +41,7 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
-                .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer
+                .oauth2ResourceServer(resourceServerSpec -> resourceServerSpec
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .jwtAuthenticationConverter(new KeycloakRoleConverter())
                         )
@@ -49,6 +49,11 @@ public class WebSecurityConfiguration {
                 .build();
     }
 
+    /**
+     * Method to configure CORS for client application.
+     *
+     * @return instance of configured CorsConfigurationSource class.
+     */
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedOrigin("*");
