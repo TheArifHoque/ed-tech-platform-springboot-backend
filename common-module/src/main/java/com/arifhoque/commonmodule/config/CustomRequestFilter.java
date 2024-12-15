@@ -1,3 +1,4 @@
+/*
 package com.arifhoque.commonmodule.config;
 
 import com.arifhoque.commonmodule.model.CustomHttpResponse;
@@ -101,3 +102,4 @@ public class CustomRequestFilter extends OncePerRequestFilter {
         return "";
     }
 }
+*/
