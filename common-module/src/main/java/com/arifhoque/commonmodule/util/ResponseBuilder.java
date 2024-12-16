@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
+import static com.arifhoque.commonmodule.constant.CommonConstant.ERROR_CODE;
+import static com.arifhoque.commonmodule.constant.CommonConstant.ERROR_MESSAGE;
+
 public class ResponseBuilder {
 
     public static ResponseEntity<CustomHttpResponse> buildSuccessResponse(HttpStatus httpStatus,
@@ -19,13 +22,12 @@ public class ResponseBuilder {
     }
 
     public static ResponseEntity<CustomHttpResponse> buildFailureResponse(HttpStatus httpStatus,
-                                                                          String customErrorCode,
+                                                                          String errorCode,
                                                                           String errorMessage) {
         CustomHttpResponse errorResponse = CustomHttpResponse
                 .builder()
                 .httpStatus(httpStatus)
-                .customErrorCode(customErrorCode)
-                .errorMessage(errorMessage)
+                .errorBody(Map.of(ERROR_CODE, errorCode, ERROR_MESSAGE, errorMessage))
                 .build();
         return new ResponseEntity<>(errorResponse, httpStatus);
     }
