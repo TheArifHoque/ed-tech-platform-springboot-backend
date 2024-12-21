@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.arifhoque.commonmodule.constant.CommonConstant.MESSAGE;
+
 @RestController
 @RequestMapping("/course-content")
 public class CourseContentController {
@@ -31,45 +33,46 @@ public class CourseContentController {
     }
 
     @GetMapping("/{courseId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<CustomHttpResponse> getCourseContents(@PathVariable UUID courseId,
                                                                 @RequestParam @Nullable Integer pageNumber,
                                                                 @RequestParam @Nullable Integer limit) {
         List<CourseContent> courseContents;
         try {
-            courseContents = courseContentService.getAllCourseContents(courseId, pageNumber, limit);
-        } catch (Exception e) {
+            courseContents = courseContentService.getAllCourseContentsByCourseId(courseId, pageNumber, limit);
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to fetch course contents! Reason: " + e.getMessage());
+                    "Failed to fetch course contents! Reason: " + ex.getMessage());
         }
-        return  ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("courseContents", courseContents));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("courseContents", courseContents));
     }
 
-    @GetMapping("/preview/{courseId}")
+    @GetMapping("/{courseId}/preview")
     public ResponseEntity<CustomHttpResponse> getCourseContentsPreview(@PathVariable UUID courseId,
                                                                        @RequestParam @Nullable Integer pageNumber,
                                                                        @RequestParam @Nullable Integer limit) {
         List<CourseContent> courseContentsPreview;
         try {
-            courseContentsPreview = courseContentService.getAllCourseContentsPreview(courseId, pageNumber, limit);
-        } catch (Exception e) {
+            courseContentsPreview = courseContentService.getAllCourseContentsPreviewByCourseId(courseId,
+                    pageNumber, limit);
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to fetch course contents preview! Reason: " + e.getMessage());
+                    "Failed to fetch course contents preview! Reason: " + ex.getMessage());
         }
-        return  ResponseBuilder.buildSuccessResponse(HttpStatus.OK,
-                Map.of("courseContentsPreview", courseContentsPreview));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("courseContentsPreview",
+                courseContentsPreview));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomHttpResponse> addCourseContents(@RequestBody CourseContent courseContent) {
+    public ResponseEntity<CustomHttpResponse> addCourseContent(@RequestBody CourseContent courseContent) {
         try {
             courseContentService.addCourseContent(courseContent);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to add course content! Reason: " + e.getMessage());
+                    "Failed to add course content! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED,
-                Map.of("message", "Successfully added course content"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
+                "Successfully added course content"));
     }
 }

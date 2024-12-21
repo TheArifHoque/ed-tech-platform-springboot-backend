@@ -1,19 +1,17 @@
 package com.arifhoque.apigateway.service;
 
 import com.arifhoque.commonmodule.model.CustomHttpRequest;
-import com.arifhoque.commonmodule.model.CustomHttpResponse;
 import com.arifhoque.commonmodule.util.HttpCallLogic;
 import com.arifhoque.commonmodule.util.RequestBuilder;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.arifhoque.commonmodule.constant.CommonConstant.AUTHORIZATION_HEADER;
+import static com.arifhoque.commonmodule.constant.CommonConstant.COURSE_CONTENT_API_BASE_URL;
 
 @Service
 public class CourseContentAPIService {
@@ -24,47 +22,33 @@ public class CourseContentAPIService {
         this.httpCallLogic = httpCallLogic;
     }
 
-    public List<Map<String, Object>> getCourseContents(UUID courseId, Integer pageNumber,
-                                                       Integer limit, String accessToken) throws Exception {
-        String url = "course-management-service/course-content/{courseId}";
-        Map<String, String> headerParameterMap = new HashMap<>();
-        headerParameterMap.put(AUTHORIZATION_HEADER, accessToken);
-        Map<String, String> urlParameterMap = new HashMap<>();
-        urlParameterMap.put("courseId", courseId.toString());
+    public Map<String, Object> getCourseContents(UUID courseId, Integer pageNumber, Integer limit,
+                                                 String accessToken) {
+        String url = COURSE_CONTENT_API_BASE_URL + "/" + courseId.toString();
+        Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
+        Map<String, String> queryParameterMap = new HashMap<>();
         if (pageNumber != null) {
-            urlParameterMap.put("pageNumber", pageNumber.toString());
+            queryParameterMap.put("pageNumber", pageNumber.toString());
         }
         if (limit != null) {
-            urlParameterMap.put("limit", limit.toString());
+            queryParameterMap.put("limit", limit.toString());
         }
-        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.GET, url,
-                headerParameterMap, urlParameterMap, null);
-        try {
-            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
-            return (List<Map<String, Object>>) responseEntity.getBody().getResponseBody().get("courseContents");
-        } catch (Exception e) {
-            throw new Exception("Error occurred while calling COURSE-MANAGEMENT-SERVICE!");
-        }
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.GET, url, headerParameterMap,
+                queryParameterMap, null);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
     }
 
-    public List<Map<String, Object>> getCourseContentsPreview(UUID courseId, Integer pageNumber,
-                                                              Integer limit) throws Exception {
-        String url = "course-management-service/course-content/preview/{courseId}";
-        Map<String, String> urlParameterMap = new HashMap<>();
-        urlParameterMap.put("courseId", courseId.toString());
+    public Map<String, Object> getCourseContentsPreview(UUID courseId, Integer pageNumber, Integer limit) {
+        String url = COURSE_CONTENT_API_BASE_URL + "/" + courseId.toString() + "/preview";
+        Map<String, String> queryParameterMap = new HashMap<>();
         if (pageNumber != null) {
-            urlParameterMap.put("pageNumber", pageNumber.toString());
+            queryParameterMap.put("pageNumber", pageNumber.toString());
         }
         if (limit != null) {
-            urlParameterMap.put("limit", limit.toString());
+            queryParameterMap.put("limit", limit.toString());
         }
         CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.GET, url, null,
-                urlParameterMap, null);
-        try {
-            ResponseEntity<CustomHttpResponse> responseEntity = httpCallLogic.executeRequest(customHttpRequest);
-            return (List<Map<String, Object>>) responseEntity.getBody().getResponseBody().get("courseContentsPreview");
-        } catch (Exception e) {
-            throw new Exception("Error occurred while calling COURSE-MANAGEMENT-SERVICE!");
-        }
+                queryParameterMap, null);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
     }
 }
