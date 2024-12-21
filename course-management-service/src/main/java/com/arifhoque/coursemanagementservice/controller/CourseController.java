@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.arifhoque.commonmodule.constant.CommonConstant.MESSAGE;
+
 @RestController
 @RequestMapping("/course")
 public class CourseController {
@@ -36,12 +38,12 @@ public class CourseController {
     public ResponseEntity<CustomHttpResponse> addCourse(@RequestBody Course course) {
         try {
             courseService.addCourse(course);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to add course! Reason: " + e.getMessage());
+                    "Failed to add course! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED,
-                Map.of("message", "Successfully added course info"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
+                "Successfully added course info"));
     }
 
     @GetMapping
@@ -50,24 +52,24 @@ public class CourseController {
         List<Course> courseList;
         try {
             courseList = courseService.getAllCourses(pageNumber, limit);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to retrieve courses! Reason: " + e.getMessage());
+                    "Failed to fetch course list! Reason: " + ex.getMessage());
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("courseList", courseList));
     }
 
     @PostMapping("/courses")
-    public ResponseEntity<CustomHttpResponse> getCourseByIds(@RequestBody Map<String, Object> courseIdsMap) {
+    public ResponseEntity<CustomHttpResponse> getCourseListByIds(@RequestBody Map<String, Object> courseIdsMap) {
         List<Course> courseList;
         try {
             List<UUID> courseIds = ((List<String>) courseIdsMap.get("courseIds")).stream()
                     .map(UUID::fromString)
-                    .collect(Collectors.toList());
-            courseList = courseService.getCourses(courseIds);
-        } catch (Exception e) {
+                    .toList();
+            courseList = courseService.getListOfCourse(courseIds);
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to retrieve courses! Reason: " + e.getMessage());
+                    "Failed to fetch course list! Reason: " + ex.getMessage());
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("courseList", courseList));
     }
@@ -76,8 +78,8 @@ public class CourseController {
     public ResponseEntity<CustomHttpResponse> getCourseById(@PathVariable UUID courseId) {
         Course course = courseService.getCourseByCourseId(courseId);
         if (course == null) {
-            return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "No course found for this course id: " + courseId);
+            return ResponseBuilder.buildFailureResponse(HttpStatus.NOT_FOUND, "404",
+                    "No course found for this course id!");
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("course", course));
     }
@@ -87,11 +89,11 @@ public class CourseController {
     public ResponseEntity<CustomHttpResponse> updateCourse(@RequestBody Course course) {
         try {
             courseService.updateCourse(course);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to update course info! Reason: " + e.getMessage());
+                    "Failed to update course! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED,
-                Map.of("message", "Successfully updated course info"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
+                "Successfully updated course info"));
     }
 }
