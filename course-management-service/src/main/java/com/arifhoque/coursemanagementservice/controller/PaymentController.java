@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import static com.arifhoque.commonmodule.constant.CommonConstant.MESSAGE;
+
 @RestController
 @RequestMapping("/payment")
 public class PaymentController {
@@ -33,12 +35,12 @@ public class PaymentController {
     public ResponseEntity<CustomHttpResponse> savePaymentInfo(@RequestBody PaymentInfo paymentInfo) {
         try {
             paymentService.savePaymentInfo(paymentInfo);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to add payment info: Reason: " + e.getMessage());
+                    "Failed to save payment info! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED,
-                Map.of("message", "Successfully added payment info"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
+                "Successfully saved payment info"));
     }
 
     @GetMapping
@@ -48,9 +50,9 @@ public class PaymentController {
         List<PaymentInfo> paymentInfoList;
         try {
             paymentInfoList = paymentService.getAllPaymentInfo(pageNumber, limit);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
-                    "Failed to retrieve all payment info: Reason: " + e.getMessage());
+                    "Failed to fetch payment info! Reason: " + ex.getMessage());
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("paymentInfoList", paymentInfoList));
     }
@@ -60,11 +62,11 @@ public class PaymentController {
     public ResponseEntity<CustomHttpResponse> updatePaymentStatus(@RequestBody Map<String, String> paymentStatusMap) {
         try {
             paymentService.updatePaymentStatus(paymentStatusMap.get("trxId"), paymentStatusMap.get("status"));
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
-                    "Failed to update payment status: Reason: " + e.getMessage());
+                    "Failed to update payment status! Reason: " + ex.getMessage());
         }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK,
-                Map.of("message", "Successfully updated payment status"));
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of(MESSAGE,
+                "Successfully updated payment status"));
     }
 }
