@@ -1,11 +1,13 @@
 package com.arifhoque.userservice.config;
 
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import static org.keycloak.OAuth2Constants.CLIENT_CREDENTIALS;
+import static org.keycloak.OAuth2Constants.PASSWORD;
 
 @Component
 public class KeycloakConfiguration {
@@ -17,10 +19,10 @@ public class KeycloakConfiguration {
     private String realmName;
 
     @Value("${keycloak.admin-cli-client-id}")
-    private String adminClientId;
+    private String adminCliClientId;
 
     @Value("${keycloak.admin-cli-client-secret}")
-    private String adminClientSecret;
+    private String adminCliClientSecret;
 
     @Bean
     public Keycloak keycloak() {
@@ -28,9 +30,22 @@ public class KeycloakConfiguration {
                 .builder()
                 .serverUrl(serverUrl)
                 .realm(realmName)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .clientId(adminClientId)
-                .clientSecret(adminClientSecret)
+                .grantType(CLIENT_CREDENTIALS)
+                .clientId(adminCliClientId)
+                .clientSecret(adminCliClientSecret)
+                .build();
+    }
+
+    public Keycloak getKeycloakClientWithPasswordGrant(String username, String password) {
+        return KeycloakBuilder
+                .builder()
+                .serverUrl(serverUrl)
+                .realm(realmName)
+                .grantType(PASSWORD)
+                .clientId(adminCliClientId)
+                .clientSecret(adminCliClientSecret)
+                .username(username)
+                .password(password)
                 .build();
     }
 }

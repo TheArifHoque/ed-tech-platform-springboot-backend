@@ -1,8 +1,10 @@
 package com.arifhoque.userservice.service;
 
+import com.arifhoque.userservice.config.KeycloakConfiguration;
 import com.arifhoque.userservice.model.User;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -30,14 +32,26 @@ public class KeycloakService {
     private String realmName;
 
     private final Keycloak keycloak;
+    private final KeycloakConfiguration keycloakConfiguration;
 
     /**
      * Constructor for KeycloakService class.
      *
-     * @param keycloak instance of the Keycloak client used to interact with the Keycloak server.
+     * @param keycloak              instance of the Keycloak client used to interact with the Keycloak server.
+     * @param keycloakConfiguration instance of Keycloak KeycloakConfiguration.
      */
-    public KeycloakService(Keycloak keycloak) {
+    public KeycloakService(Keycloak keycloak, KeycloakConfiguration keycloakConfiguration) {
         this.keycloak = keycloak;
+        this.keycloakConfiguration = keycloakConfiguration;
+    }
+
+    public AccessTokenResponse login(String username, String password) throws Exception {
+        Keycloak keycloakClient = keycloakConfiguration.getKeycloakClientWithPasswordGrant(username, password);
+        try {
+            return keycloakClient.tokenManager().getAccessToken();
+        } catch (Exception ex) {
+            throw new Exception("Incorrect username or password!");
+        }
     }
 
     /**
@@ -130,8 +144,7 @@ public class KeycloakService {
      */
     public List<UUID> getUserIdsByRole(String role) {
         List<UUID> userIds = new ArrayList<>();
-        List<UserRepresentation> userRepresentationList =
-                keycloak.realm(realmName).roles().get(role).getUserMembers();
+        List<UserRepresentation> userRepresentationList = keycloak.realm(realmName).roles().get(role).getUserMembers();
         for (UserRepresentation userRepresentation : userRepresentationList) {
             userIds.add(UUID.fromString(userRepresentation.getId()));
         }
