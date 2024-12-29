@@ -6,6 +6,7 @@ import com.arifhoque.userservice.model.User;
 import com.arifhoque.userservice.service.KeycloakService;
 import com.arifhoque.userservice.service.UserService;
 import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +49,19 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<CustomHttpResponse> login(@RequestBody Map<String, String> userCredentialsMap) {
+        AccessTokenResponse accessTokenResponse;
+        try {
+            accessTokenResponse = keycloakService.login(userCredentialsMap.get("username"),
+                    userCredentialsMap.get("password"));
+        } catch (Exception ex) {
+            return ResponseBuilder.buildFailureResponse(HttpStatus.UNAUTHORIZED, "401",
+                    "Failed to login! Reason: " + ex.getMessage());
+        }
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("accessTokenResponse", accessTokenResponse));
+    }
+
     /**
      * API to add / register user with role 'USER'.
      * <p>
@@ -57,7 +71,7 @@ public class UserController {
      * @return success only if the user can be successfully added to both KeyCloak auth server
      * and 'user-service-db'. Else returns 400-Bad Request.
      */
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<CustomHttpResponse> addRegularUser(@RequestBody User user) {
         try {
             userService.validateEmail(user.getEmail());
@@ -82,7 +96,7 @@ public class UserController {
      * @return success only if the user can be successfully added to both KeyCloak auth server
      * and 'user-service-db'. Else returns 400-Bad Request.
      */
-    @PostMapping("/admin")
+    @PostMapping("/register/admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomHttpResponse> addAdminUser(@RequestBody User user) {
         try {
