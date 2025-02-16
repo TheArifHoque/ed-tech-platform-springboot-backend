@@ -6,7 +6,6 @@ import com.arifhoque.userservice.model.User;
 import com.arifhoque.userservice.service.KeycloakService;
 import com.arifhoque.userservice.service.UserService;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,19 +46,6 @@ public class UserController {
     public UserController(KeycloakService keycloakService, UserService userService) {
         this.keycloakService = keycloakService;
         this.userService = userService;
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<CustomHttpResponse> login(@RequestBody Map<String, String> userCredentialsMap) {
-        AccessTokenResponse accessTokenResponse;
-        try {
-            accessTokenResponse = keycloakService.login(userCredentialsMap.get("username"),
-                    userCredentialsMap.get("password"));
-        } catch (Exception ex) {
-            return ResponseBuilder.buildFailureResponse(HttpStatus.UNAUTHORIZED, "401",
-                    "Failed to login! Reason: " + ex.getMessage());
-        }
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of("accessTokenResponse", accessTokenResponse));
     }
 
     /**
@@ -253,4 +239,5 @@ public class UserController {
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, Map.of(MESSAGE,
                 "Successfully updated password"));
     }
+
 }

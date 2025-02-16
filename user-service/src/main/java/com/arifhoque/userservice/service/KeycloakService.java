@@ -1,10 +1,8 @@
 package com.arifhoque.userservice.service;
 
-import com.arifhoque.userservice.config.KeycloakConfiguration;
 import com.arifhoque.userservice.model.User;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -32,26 +30,14 @@ public class KeycloakService {
     private String realmName;
 
     private final Keycloak keycloak;
-    private final KeycloakConfiguration keycloakConfiguration;
 
     /**
      * Constructor for KeycloakService class.
      *
-     * @param keycloak              instance of the Keycloak client used to interact with the Keycloak server.
-     * @param keycloakConfiguration instance of Keycloak KeycloakConfiguration.
+     * @param keycloak instance of the Keycloak client used to interact with the Keycloak server.
      */
-    public KeycloakService(Keycloak keycloak, KeycloakConfiguration keycloakConfiguration) {
+    public KeycloakService(Keycloak keycloak) {
         this.keycloak = keycloak;
-        this.keycloakConfiguration = keycloakConfiguration;
-    }
-
-    public AccessTokenResponse login(String username, String password) throws Exception {
-        Keycloak keycloakClient = keycloakConfiguration.getKeycloakClientWithPasswordGrant(username, password);
-        try {
-            return keycloakClient.tokenManager().getAccessToken();
-        } catch (Exception ex) {
-            throw new Exception("Incorrect username or password!");
-        }
     }
 
     /**
