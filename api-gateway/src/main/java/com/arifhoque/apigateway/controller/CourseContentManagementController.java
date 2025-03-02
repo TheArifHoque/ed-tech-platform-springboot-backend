@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static com.arifhoque.commonmodule.constant.CommonConstant.AUTHORIZATION_HEADER;
@@ -38,4 +39,19 @@ public class CourseContentManagementController {
         return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseContentAPIService.getCourseContentsPreview(
                 courseId, pageNumber, limit));
     }
+
+    @PostMapping
+    public ResponseEntity<CustomHttpResponse> addCourseContent(@RequestHeader(AUTHORIZATION_HEADER) String accessToken,
+                                                               @RequestBody Map<String, Object> courseContent) {
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseContentAPIService.addCourseContent(
+                courseContent, accessToken));
+    }
+
+    @DeleteMapping("/{contentId}")
+    public ResponseEntity<CustomHttpResponse> addCourseContent(@RequestHeader(AUTHORIZATION_HEADER) String accessToken,
+                                                               @PathVariable UUID contentId) {
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseContentAPIService.deleteCourseContent(
+                contentId, accessToken));
+    }
+
 }

@@ -51,4 +51,20 @@ public class CourseContentAPIService {
                 queryParameterMap, null);
         return httpCallLogic.getHttpResponseWithException(customHttpRequest);
     }
+
+    public Map<String, Object> addCourseContent(Map<String, Object> courseContent, String accessToken) {
+        Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, COURSE_CONTENT_API_BASE_URL,
+                headerParameterMap, null, courseContent);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
+    }
+
+    public Map<String, Object> deleteCourseContent(UUID contentId, String accessToken) {
+        String url = COURSE_CONTENT_API_BASE_URL + "/" + contentId.toString();
+        Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.DELETE, url, headerParameterMap,
+                null, null);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
+    }
+
 }
