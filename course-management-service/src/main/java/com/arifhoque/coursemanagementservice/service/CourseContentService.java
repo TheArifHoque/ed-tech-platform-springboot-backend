@@ -43,6 +43,13 @@ public class CourseContentService {
     }
 
     public void addCourseContent(CourseContent courseContent) {
+        UUID courseId = courseContent.getCourseId();
+        Integer contentSequence = courseContent.getContentSequence();
+        if (courseContent.getContentSequence() == null) {
+            Integer lastContentSequence = courseContentRepository.findTopByCourseIdOrderByContentSequenceDesc(courseId);
+            contentSequence = lastContentSequence != null ? ++lastContentSequence : 1;
+        }
+        courseContent.setContentSequence(contentSequence);
         courseContentRepository.save(courseContent);
     }
 
@@ -56,6 +63,14 @@ public class CourseContentService {
         existingCourseContent.setContentUrl(courseContent.getContentUrl());
         existingCourseContent.setContentSequence(courseContent.getContentSequence());
         courseContentRepository.save(existingCourseContent);
+    }
+
+    public void deleteCourseContent(UUID contentId) throws Exception {
+        CourseContent existingCourseContent = courseContentRepository.findByContentId(contentId);
+        if (existingCourseContent == null) {
+            throw new Exception("Course content with id - " + contentId + " not found!");
+        }
+        courseContentRepository.deleteById(contentId);
     }
 
 }

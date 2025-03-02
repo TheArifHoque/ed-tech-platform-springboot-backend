@@ -8,6 +8,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,5 +75,18 @@ public class CourseContentController {
         }
         return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
                 "Successfully added course content"));
+    }
+
+    @DeleteMapping("/{contentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CustomHttpResponse> deleteCourseContent(@PathVariable UUID contentId) {
+        try {
+            courseContentService.deleteCourseContent(contentId);
+        } catch (Exception ex) {
+            return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
+                    "Failed to delete course content! Reason: " + ex.getMessage());
+        }
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, Map.of(MESSAGE,
+                "Successfully deleted course content"));
     }
 }
