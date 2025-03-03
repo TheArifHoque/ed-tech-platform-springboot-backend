@@ -7,7 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,14 +41,6 @@ public class CourseAPIService {
         return httpCallLogic.getHttpResponseWithException(customHttpRequest);
     }
 
-    public Map<String, Object> getAllCoursesByIds(List<String> courseIds) {
-        String url = COURSE_API_BASE_URL + "/courses";
-        Map<String, Object> bodyParameterMap = Map.of("courseIds", courseIds);
-        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, null,
-                null, bodyParameterMap);
-        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
-    }
-
     public Map<String, Object> addNewCourse(Map<String, Object> course, String accessToken) {
         Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
         CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, COURSE_API_BASE_URL,
@@ -62,6 +53,22 @@ public class CourseAPIService {
         Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
         CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.POST, url, headerParameterMap,
                 null, course);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
+    }
+
+    public Map<String, Object> getAllEnrolledCourses(UUID userId, String accessToken) {
+        String url = COURSE_API_BASE_URL + "/enrollment/" + userId.toString();
+        Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.GET, url, headerParameterMap,
+                null, null);
+        return httpCallLogic.getHttpResponseWithException(customHttpRequest);
+    }
+
+    public Map<String, Object> getEnrollmentStatus(UUID courseId, UUID userId, String accessToken) {
+        String url = COURSE_API_BASE_URL + "/enrollment/" + courseId.toString() + "/" + userId.toString();
+        Map<String, String> headerParameterMap = Map.of(AUTHORIZATION_HEADER, accessToken);
+        CustomHttpRequest customHttpRequest = RequestBuilder.buildRequest(HttpMethod.GET, url, headerParameterMap,
+                null, null);
         return httpCallLogic.getHttpResponseWithException(customHttpRequest);
     }
 }

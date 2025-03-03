@@ -51,7 +51,22 @@ public class CourseManagementController {
     @PostMapping("/update")
     public ResponseEntity<CustomHttpResponse> updateCourse(@RequestHeader(AUTHORIZATION_HEADER) String accessToken,
                                                            @RequestBody Map<String, Object> course) {
-        return ResponseBuilder.buildSuccessResponse(HttpStatus.CREATED, courseAPIService.updateCourse(course,
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseAPIService.updateCourse(course,
                 accessToken));
+    }
+
+    @GetMapping("/enrollment/{userId}")
+    public ResponseEntity<CustomHttpResponse> getAllEnrolledCourses(@RequestHeader(AUTHORIZATION_HEADER)
+                                                                    String accessToken, @PathVariable UUID userId) {
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseAPIService.getAllEnrolledCourses(userId,
+                accessToken));
+    }
+
+    @GetMapping("/enrollment/{courseId}/{userId}")
+    public ResponseEntity<CustomHttpResponse> getEnrollmentStatus(@RequestHeader(AUTHORIZATION_HEADER)
+                                                                  String accessToken, @PathVariable UUID courseId,
+                                                                  @PathVariable UUID userId) {
+        return ResponseBuilder.buildSuccessResponse(HttpStatus.OK, courseAPIService.getEnrollmentStatus(courseId,
+                userId, accessToken));
     }
 }
