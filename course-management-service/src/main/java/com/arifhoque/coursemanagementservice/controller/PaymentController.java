@@ -3,6 +3,7 @@ package com.arifhoque.coursemanagementservice.controller;
 import com.arifhoque.commonmodule.model.CustomHttpResponse;
 import com.arifhoque.commonmodule.util.ResponseBuilder;
 import com.arifhoque.coursemanagementservice.model.PaymentInfo;
+import com.arifhoque.coursemanagementservice.service.EnrollmentService;
 import com.arifhoque.coursemanagementservice.service.PaymentService;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
@@ -24,17 +25,24 @@ import static com.arifhoque.commonmodule.constant.CommonConstant.MESSAGE;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+    private static final String IN_REVIEW_STATUS = "IN-REVIEW";
 
-    public PaymentController(PaymentService paymentService) {
+    private final PaymentService paymentService;
+    private final EnrollmentService enrollmentService;
+
+    public PaymentController(PaymentService paymentService, EnrollmentService enrollmentService) {
         this.paymentService = paymentService;
+        this.enrollmentService = enrollmentService;
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<CustomHttpResponse> savePaymentInfo(@RequestBody PaymentInfo paymentInfo) {
         try {
+            paymentInfo.setStatus(IN_REVIEW_STATUS);
             paymentService.savePaymentInfo(paymentInfo);
+            enrollmentService.enrollToCourse(paymentInfo.getCourseId(), paymentInfo.getUserId(),
+                    paymentInfo.getStatus());
         } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.BAD_REQUEST, "400",
                     "Failed to save payment info! Reason: " + ex.getMessage());
@@ -59,9 +67,11 @@ public class PaymentController {
 
     @PostMapping("/approval")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomHttpResponse> updatePaymentStatus(@RequestBody Map<String, String> paymentStatusMap) {
+    public ResponseEntity<CustomHttpResponse> updatePaymentStatus(@RequestBody PaymentInfo paymentInfo) {
         try {
-            paymentService.updatePaymentStatus(paymentStatusMap.get("trxId"), paymentStatusMap.get("status"));
+            paymentService.updatePaymentStatus(paymentInfo.getTrxId(), paymentInfo.getStatus());
+            enrollmentService.enrollToCourse(paymentInfo.getCourseId(), paymentInfo.getUserId(),
+                    paymentInfo.getStatus());
         } catch (Exception ex) {
             return ResponseBuilder.buildFailureResponse(HttpStatus.EXPECTATION_FAILED, "417",
                     "Failed to update payment status! Reason: " + ex.getMessage());
