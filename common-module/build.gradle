@@ -1,20 +1,14 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.4'
-	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.springframework.boot' version '3.1.3'
+	id 'io.spring.dependency-management' version '1.1.3'
 }
 
-group = 'com.arifhoque'
-version = '0.0.1-SNAPSHOT'
+group = 'com.devrezaur'
+version = '1.0'
 
 java {
 	sourceCompatibility = '17'
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
 }
 
 repositories {
@@ -22,17 +16,17 @@ repositories {
 }
 
 ext {
-	set('springCloudVersion', "2023.0.1")
+	set('springCloudVersion', "2022.0.4")
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.keycloak:keycloak-admin-client:21.0.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.keycloak:keycloak-admin-client:21.0.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compileOnly 'org.projectlombok:lombok:1.18.28'
+	annotationProcessor 'org.projectlombok:lombok:1.18.28'
 }
 
 dependencyManagement {
@@ -41,6 +35,6 @@ dependencyManagement {
 	}
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 }
